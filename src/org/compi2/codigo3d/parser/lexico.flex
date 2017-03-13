@@ -35,7 +35,6 @@ IGUALIGUAL      = "=="
 
 OR              = "||"
 AND             = "&&"  
-XOR             = "&|"
 NOT             = "!"
 
 ID              = [A-Za-z][_0-9A-Za-z]*
@@ -67,7 +66,6 @@ ENTER   = [\ \n]
 
 <YYINITIAL> {OR}	    { return new Symbol(sym.OR, yyline, yycolumn, null); }
 <YYINITIAL> {AND}	    { return new Symbol(sym.AND, yyline, yycolumn, null); }
-<YYINITIAL> {XOR}	    { return new Symbol(sym.XOR, yyline, yycolumn, null); }
 <YYINITIAL> {NOT}	    { return new Symbol(sym.NOT, yyline, yycolumn, null); }
 
 <YYINITIAL> {SPACE}     { /*Espacios en blanco, ignorados*/ }

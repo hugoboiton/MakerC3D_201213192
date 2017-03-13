@@ -22,11 +22,10 @@ action code
 :}
 
 terminal String ID, ENTERO, DECIMAL;
-terminal TokenC3D MAS, MENOS, MULT, DIV, POT, PAR_IZQ, PAR_DER, MENOR,MENORIGUAL,MAYOR,MAYORIGUAL,IGUALIGUAL,DIFERENTE,XOR,AND,NOT,OR;
+terminal TokenC3D MAS, MENOS, MULT, DIV, POT, PAR_IZQ, PAR_DER, MENOR,MENORIGUAL,MAYOR,MAYORIGUAL,IGUALIGUAL,DIFERENTE,AND,NOT,OR;
 nonterminal NodoC3D inicial, expresion,relacional, op,logica;
 
 precedence left OR;
-precedence left XOR;
 precedence left AND;
 precedence right NOT;
 
@@ -39,39 +38,34 @@ start with inicial;
 inicial     ::= {: ControlC3D.reiniciar(); :} logica:log 
                     {:   
                         RESULT = log;
-                        ControlC3D.agregarC3D("//Último valor: " + log.getCad());
+                        ControlC3D.agregarC3D(log.getCad()+"\n"+log.getEtv()+"\n"+log.getEtf()+"\n");
                     :};
+
+
 logica ::= logica:izq OR logica:der
            {:
-                   String temp = ControlC3D.generaTemp();
-                   String c3d = temp + " = " + izq.getCad() + " || "+ der.getCad() + ";\n";
-                   ControlC3D.agregarC3D(c3d);
-                   RESULT = new NodoC3D(temp); 
+                 String cad=izq.getCad()+"\n";
+                 cad+=izq.getEtf()+":\n"+der.getCad();
+                 RESULT=new NodoC3D(cad);
+                 RESULT.setEtv(izq.getEtv()+":\n"+der.getEtv()+":\n");
+                 RESULT.setEtf(der.getEtf()+":\n");
 
             :}
            |logica:izq AND logica:der
            {:
-                   String temp = ControlC3D.generaTemp();
-                   String c3d = temp + " = " + izq.getCad() + " && "+ der.getCad() + ";\n";
-                   ControlC3D.agregarC3D(c3d);
-                   RESULT = new NodoC3D(temp); 
+                 String cad=izq.getCad()+"\n";
+                 cad+=izq.getEtv()+":\n"+der.getCad();
+                 RESULT=new NodoC3D(cad);
+                 RESULT.setEtv(der.getEtv()+":\n");
+                 RESULT.setEtf(izq.getEtf()+":\n"+der.getEtf()+":\n");   
 
             :}
-           |logica:izq XOR logica:der
-           {:
-                   String temp = ControlC3D.generaTemp();
-                   String c3d = temp + " = " + izq.getCad() + " &|"+ der.getCad() + ";\n";
-                   ControlC3D.agregarC3D(c3d);
-                   RESULT = new NodoC3D(temp); 
-
-            :} 
            
            |NOT logica:der
            {:
-                   String temp = ControlC3D.generaTemp();
-                   String c3d = temp + " = " +"! " + der.getCad() + ";\n";
-                   ControlC3D.agregarC3D(c3d);
-                   RESULT = new NodoC3D(temp); 
+                   RESULT=new NodoC3D(der.getCad());
+                   RESULT.setEtv(der.getEtf());
+                   RESULT.setEtf(der.getEtv());
            :}
            |PAR_IZQ logica:log PAR_DER   
                     {: RESULT = log; :}     
@@ -82,12 +76,16 @@ logica ::= logica:izq OR logica:der
 
 relacional  ::= expresion:izq op:p expresion:der
                 {:
-                   String temp = ControlC3D.generaTemp();
-                   String c3d = temp + " = " + izq.getCad() + " "+p.getCad()+ " "+ der.getCad() + ";\n";
-                   ControlC3D.agregarC3D(c3d);
-                   RESULT = new NodoC3D(temp); 
-
+                   String etv = ControlC3D.generarEtiqueta();
+                   String etf = ControlC3D.generarEtiqueta();
+                   String c3d = " If" + izq.getCad() + " "+p.getCad()+ " "+ der.getCad() + "then goto "+etv+"\n";
+                   c3d+= "goto"+etf+"\n"; 
+                  // ControlC3D.agregarC3D(c3d);
+                   RESULT = new NodoC3D(c3d); 
+                   RESULT.setEtv(etv);
+                   RESULT.setEtf(etf);  
                   :}
+                  
 ;
 
 op ::= MENOR {: RESULT = new NodoC3D("<");:}
